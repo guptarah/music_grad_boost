@@ -1,0 +1,13 @@
+get_results.py: Script to get results on baseline coeffs. Can also do MA filter to obtain better RMSE.
+
+make_base_prediction_file.py:
+
+prepare_files:
+
+train_lr.py: Trains a simple linear regressor to obtain outputs from features
+
+train_weak_classifiers.py: Does grad boost with random features
+
+train_weak_classifeirs_greedy.py: Does grad boost with greedy selection of features
+
+

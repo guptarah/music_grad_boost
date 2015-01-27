@@ -1,0 +1,72 @@
+#! /bin/bash
+
+lables_file=$1
+features_dir=$2
+
+counter=0
+rm -f train_base_data
+rm -f train_framewise_data
+while read line
+do
+	counter=$(( $counter + 1 ))
+	if [ $counter -ne 1 ]
+	then
+		file_id=$(echo $line| cut -d',' -f1)
+	
+		echo $line| cut -d',' -f2- > cur_file_lables
+		features_file=$features_dir/$file_id".csv"
+		tail -n +32 $features_file | cut -d';' -f2- > cur_file_feats
+
+		python make_base_prediction_file.py cur_file_lables cur_file_feats
+		
+		cat cur_data >> train_base_data
+		cat cur_data_fw >> train_framewise_data
+	fi 
+
+done < $lables_file
+
+test_lables_file=$3
+test_features_dir=$4
+
+counter=0
+rm -f dev_base_data
+rm -f dev_framewise_data
+rm -f test_base_data
+rm -f test_framewise_data
+
+while read line
+do
+	counter=$(( $counter + 1 ))
+	if [ $counter -lt 301 ]
+        then
+                file_id=$(echo $line| cut -d',' -f1)
+
+                echo $line| cut -d',' -f2- > cur_file_lables
+
+		feature_file_id=$(( $counter + 1000 ))
+		echo $file_id $feature_file_id
+                features_file=$test_features_dir/$feature_file_id".csv"
+                tail -n +32 $features_file | cut -d';' -f2- > cur_file_feats
+
+                python make_base_prediction_file.py cur_file_lables cur_file_feats
+
+                cat cur_data >> dev_base_data
+                cat cur_data_fw >> dev_framewise_data
+	else
+		file_id=$(echo $line| cut -d',' -f1)
+
+                echo $line| cut -d',' -f2- > cur_file_lables
+
+                feature_file_id=$(( $counter + 1000 ))
+                echo $file_id $feature_file_id
+                features_file=$test_features_dir/$feature_file_id".csv"
+                tail -n +32 $features_file | cut -d';' -f2- > cur_file_feats
+
+                python make_base_prediction_file.py cur_file_lables cur_file_feats
+
+                cat cur_data >> test_base_data
+                cat cur_data_fw >> test_framewise_data
+	
+        fi
+
+done < $test_lables_file
